@@ -166,8 +166,9 @@ app.get('/api/artist-tours/:artistName', async (req, res) => {
 
 // Catch-all
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/build/index.html'));
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
+
 
 // Error handler
 app.use((err, req, res, next) => {
