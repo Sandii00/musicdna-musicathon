@@ -1,11 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MusicDNA</title>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MusicDNA - Trace The Roots</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    
+    .logo {
+      font-size: 3em;
+      margin-bottom: 10px;
+    }
+    
+    .title {
+      font-size: 2.5em;
+      font-weight: bold;
+      letter-spacing: 3px;
+      margin-bottom: 5px;
+    }
+    
+    .subtitle {
+      color: #888;
+      font-size: 0.9em;
+      letter-spacing: 2px;
+    }
+    
+    .tagline {
+      color: #999;
+      margin-top: 20px;
+      font-size: 0.95em;
+      line-height: 1.6;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin: 40px 0;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    input {
+      flex: 1;
+      padding: 15px;
+      border: 1px solid #333;
+      background: #111;
+      color: #fff;
+      font-size: 1em;
+      border-radius: 3px;
+    }
+    
+    input::placeholder {
+      color: #666;
+    }
+    
+    button {
+      padding: 15px 30px;
+      background: #fff;
+      color: #000;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 1em;
+    }
+    
+    button:hover {
+      background: #ddd;
+    }
+    
+    .results {
+      margin-top: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .result-item {
+      padding: 15px;
+      background: #111;
+      border-left: 3px solid #fff;
+      margin: 10px 0;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .result-item:hover {
+      background: #222;
+    }
+    
+    .result-item strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    .result-item small {
+      color: #888;
+    }
+    
+    .dna-section {
+      background: #111;
+      padding: 20px;
+      margin-top: 30px;
+      border-left: 3px solid #fff;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .dna-section h3 {
+      margin-bottom: 15px;
+      font-size: 1.2em;
+    }
+    
+    .dna-section strong {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 10px;
+    }
+    
+    .dna-section ul {
+      list-style: none;
+      margin-left: 0;
+    }
+    
+    .dna-section li {
+      padding: 8px;
+      background: #222;
+      margin: 5px 0;
+      border-radius: 3px;
+      color: #ccc;
+    }
+    
+    .influences-list {
+      list-style: none;
+      margin-left: 0;
+    }
+    
+    .influence-item {
+      padding: 10px;
+      background: #222;
+      margin: 5px 0;
+      border-radius: 3px;
+      border-left: 2px solid #fff;
+    }
+    
+    .influence-item strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+    
+    .influence-item small {
+      color: #888;
+      display: block;
+      margin-top: 3px;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #888;
+    }
+    
+    .error {
+      color: #f00;
+      padding: 15px;
+      background: #1a0000;
+      border-left: 3px solid #f00;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">🎵</div>
+      <div class="title">MUSICDNA</div>
+      <div class="subtitle">EST. LYRICAL GENEALOGY</div>
+      <div class="tagline">
+        Every song carries the DNA of the music that came before it.<br>
+        Search a track and we'll decode its lyrical genome, then surface the influences hidden in its lineage.
+      </div>
+    </div>
+    
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search a song — e.g. Blinding Lights">
+      <button onclick="search()">ANALYZE</button>
+    </div>
+    
+    <div id="results" class="results"></div>
+    <div id="dnaResult"></div>
+  </div>
+
+  <script>
+    async function search() {
+      const query = document.getElementById('searchInput').value;
+      if (!query) return;
+      
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<div class="loading">Searching...</div>';
+      
+      try {
+        const res = await fetch(`/api/search?q_track=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        const tracks = data.message?.body?.track_list || [];
+        
+        if (tracks.length === 0) {
+          resultsDiv.innerHTML = '<div class="error">No tracks found</div>';
+          return;
+        }
+        
+        let html = '';
+        tracks.slice(0, 5).forEach(item => {
+          html += `<div class="result-item" onclick="selectTrack(${item.track.track_id}, '${item.track.track_name.replace(/'/g, "\\'")}', '${item.track.artist_name.replace(/'/g, "\\'")}')">
+            <strong>${item.track.track_name}</strong>
+            <small>${item.track.artist_name}</small>
+          </div>`;
+        });
+        resultsDiv.innerHTML = html;
+      } catch (error) {
+        resultsDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+      }
+    }
+    
+    async function selectTrack(trackId, title, artist) {
+      const dnaDiv = document.getElementById('dnaResult');
+      dnaDiv.innerHTML = '<div class="loading">Analyzing DNA...</div>';
+      
+      try {
+        const lyricsRes = await fetch(`/api/lyrics/${trackId}`);
+        const lyricsData = await lyricsRes.json();
+        const lyrics = lyricsData.message?.body?.lyrics?.lyrics_body;
+        
+        if (!lyrics) {
+          dnaDiv.innerHTML = '<div class="error">No lyrics found</div>';
+          return;
+        }
+        
+        const dnaRes = await fetch('/api/extract-dna', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lyrics })
+        });
+        const dna = await dnaRes.json();
+        
+        const infRes = await fetch('/api/find-influences', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dnaProfile: dna })
+        });
+        const influences = await infRes.json();
+        
+        let html = `<div class="dna-section">
+          <h3>${title}</h3>
+          <small>${artist}</small>
+          <strong>🧬 DNA Profile</strong>
+          <strong style="font-size: 0.9em; margin-top: 8px; margin-bottom: 5px;">Key Phrases:</strong>
+          <ul>`;
+        
+        dna.phrases.slice(0, 5).forEach(p => {
+          html += `<li>${p}</li>`;
+        });
+        
+        html += `</ul>
+          <strong style="font-size: 0.9em;">Themes:</strong>
+          <p style="color: #888;">${Object.keys(dna.themes).join(', ') || 'None detected'}</p>
+          <strong>🌳 Influences</strong>
+          <ul class="influences-list">`;
+        
+        influences.influences.slice(0, 10).forEach(inf => {
+          html += `<li class="influence-item">
+            <strong>${inf.title}</strong>
+            <small>${inf.artist} • ${inf.similarity.toFixed(0)}% match</small>
+          </li>`;
+        });
+        
+        html += `</ul></div>`;
+        dnaDiv.innerHTML = html;
+      } catch (error) {
+        dnaDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+      }
+    }
+    
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') search();
+    });
+  </script>
+</body>
 </html>
