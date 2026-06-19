@@ -8,14 +8,12 @@ async function findInfluences(dnaProfile, apiKey) {
   }
   
   const influences = [];
-  const searchedQueries = new Set();
+  const searchedQueries = phrases.slice(0, 5);
   
-  for (const phrase of phrases.slice(0, 5)) {
-    if (searchedQueries.has(phrase)) continue;
-    searchedQueries.add(phrase);
-    
-    try {
-      const response = await axios.get(
+  try {
+    // Run all searches in PARALLEL instead of sequentially
+    const searchPromises = searchedQueries.map(phrase =>
+      axios.get(
         'https://api.musixmatch.com/ws/1.1/track.search',
         {
           params: {
@@ -26,7 +24,17 @@ async function findInfluences(dnaProfile, apiKey) {
           },
           timeout: 5000,
         }
-      );
+      ).catch(error => {
+        console.error(`Error searching "${phrase}":`, error.message);
+        return null;
+      })
+    );
+    
+    const results = await Promise.all(searchPromises);
+    
+    // Collect all influences from parallel results
+    results.forEach(response => {
+      if (!response) return;
       
       const trackList = response.data.message?.body?.track_list || [];
       trackList.forEach((item, idx) => {
@@ -40,12 +48,13 @@ async function findInfluences(dnaProfile, apiKey) {
           albumArt: track.album_coverart_350x350,
         });
       });
-    } catch (error) {
-      console.error(`Error searching "${phrase}":`, error.message);
-      continue;
-    }
+    });
+    
+  } catch (error) {
+    console.error('Error in findInfluences:', error.message);
   }
   
+  // Deduplicate by track ID
   const unique = {};
   influences.forEach(inf => {
     const key = inf.trackId.toString();
@@ -54,6 +63,7 @@ async function findInfluences(dnaProfile, apiKey) {
     }
   });
   
+  // Return top 10 sorted by similarity
   return Object.values(unique)
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, 10);
