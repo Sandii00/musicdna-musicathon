@@ -1,0 +1,197 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+.App {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  color: white;
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: 3em;
+  margin-bottom: 10px;
+}
+
+.header p {
+  font-size: 1.2em;
+  opacity: 0.9;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 15px;
+  padding: 40px;
+}
+
+.search-bar {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 15px 20px;
+  border: 2px solid #1DB954;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1em;
+  outline: none;
+}
+
+.search-bar input::placeholder {
+  color: #aaa;
+}
+
+.search-bar input:focus {
+  border-color: #1ed760;
+  box-shadow: 0 0 20px rgba(29, 185, 84, 0.5);
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid #1DB954;
+  list-style: none;
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 0 0 10px 10px;
+  z-index: 10;
+}
+
+.result-item {
+  padding: 12px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.result-item:hover {
+  background: #1DB954;
+}
+
+.result-item strong {
+  display: block;
+  color: #1ed760;
+}
+
+.result-item p {
+  font-size: 0.9em;
+  color: #aaa;
+  margin-top: 5px;
+}
+
+.track-display {
+  background: rgba(29, 185, 84, 0.1);
+  border-left: 4px solid #1DB954;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  text-align: center;
+  color: white;
+}
+
+.track-display h2 {
+  color: #1ed760;
+  margin-bottom: 10px;
+}
+
+.track-display img {
+  width: 150px;
+  height: 150px;
+  border-radius: 10px;
+  margin: 15px 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #1ed760;
+  font-size: 1.2em;
+}
+
+.dna-profile {
+  background: rgba(102, 126, 234, 0.1);
+  border-left: 4px solid #667eea;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  color: white;
+}
+
+.dna-profile h3 {
+  color: #667eea;
+  margin-bottom: 15px;
+}
+
+.dna-profile ul {
+  list-style: none;
+  margin-left: 0;
+}
+
+.dna-profile li {
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 5px 0;
+  border-radius: 5px;
+  color: #aaa;
+}
+
+.influence-tree {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #1DB954;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  color: white;
+}
+
+.influence-tree h3 {
+  color: #1ed760;
+  margin-bottom: 15px;
+}
+
+.influence-list {
+  list-style: none;
+}
+
+.influence-item {
+  padding: 12px;
+  background: rgba(29, 185, 84, 0.1);
+  margin: 8px 0;
+  border-radius: 8px;
+  border-left: 3px solid #1DB954;
+  color: #aaa;
+}
+
+.influence-item strong {
+  color: #1ed760;
+  display: block;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 5px;
+  margin: 15px 0;
+  border-left: 4px solid #dc3545;
+}
