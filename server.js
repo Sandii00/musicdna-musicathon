@@ -127,50 +127,48 @@ app.post('/api/find-influences', async (req, res) => {
   }
 });
 
-// Get artist tours
-app.get('/api/artist-tours/:artistName', async (req, res) => {
+// Get artist stats via Songstats
+app.get('/api/artist-stats/:artistName', async (req, res) => {
   const { artistName } = req.params;
   
   try {
+    // Songstats API endpoint (requires free API key from songstats.com)
     const response = await axios.get(
-      'https://api.jambase.com/v3/artists/search',
+      'https://api.songstats.com/v1/artist/search',
       {
         params: {
           name: artistName,
-          apikey: JAMBASE_API_KEY,
+          apikey: process.env.SONGSTATS_API_KEY || 'demo',
         },
         timeout: 5000,
       }
     );
     
-    const artist = response.data.artists?.[0];
+    const artist = response.data.data?.[0];
     if (!artist) {
-      return res.json({ tours: [] });
+      return res.json({ 
+        stats: {
+          popularity: 'N/A',
+          streams: 'N/A',
+          followers: 'N/A'
+        }
+      });
     }
     
-    const eventsResponse = await axios.get(
-      `https://api.jambase.com/v3/artists/${artist.id}/events`,
-      {
-        params: {
-          apikey: JAMBASE_API_KEY,
-          limit: 10,
-        },
-        timeout: 5000,
+    res.json({ 
+      stats: {
+        name: artist.name,
+        popularity: artist.popularity || 'N/A',
+        streams: artist.streams || 'N/A',
+        followers: artist.followers || 'N/A',
+        image: artist.image || null
       }
-    );
-    
-    res.json({ tours: eventsResponse.data.events || [] });
+    });
   } catch (error) {
-    res.json({ tours: [] });
+    console.error('Songstats error:', error.message);
+    res.json({ stats: { popularity: 'N/A' } });
   }
 });
-
-// Catch-all
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/build/index.html'));
-});
-
-
 
 // Error handler
 app.use((err, req, res, next) => {
