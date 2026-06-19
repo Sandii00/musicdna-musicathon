@@ -8,7 +8,8 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 const MUSIXMATCH_API_KEY = process.env.MUSIXMATCH_API_KEY;
 const JAMBASE_API_KEY = process.env.JAMBASE_API_KEY;
